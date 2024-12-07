@@ -75,53 +75,71 @@
       background-color: #4caf50; /* Green on hover */
     }
 
-    /* Optional: Add some smooth transition effects */
-    li:hover {
-      background-color: #333333;
+    /* Loading state styles */
+    #loading {
+      font-size: 1.5em;
+      color: #4caf50;
+      display: block;
+    }
+
+    #file-list {
+      display: none;
     }
   </style>
 </head>
 <body>
   <h1>Files in Folder C</h1>
+  <div id="loading">Loading files...</div>
   <ul id="file-list">
     <!-- The file list will be populated here -->
   </ul>
 
   <script>
-    // GitHub API URL for listing files in the 'C' folder of the repository
     const apiUrl = 'https://api.github.com/repos/TempestAethel/Short/contents/C';
-
-    // Fetch the list of files from the GitHub repository using the GitHub API
-    fetch(apiUrl)
-      .then(response => response.json())
-      .then(data => {
-        const fileList = document.getElementById('file-list');
-
-        // Loop through the response data and create a list of files with links
-        data.forEach(file => {
-          // Only include files (ignore directories)
-          if (file.type === 'file') {
-            const listItem = document.createElement('li');
-            const fileName = file.name;
-            const fileUrl = `https://tempestaethel.github.io/Short/C/${fileName}`;
-
-            // Create the link for each file
-            listItem.innerHTML = `
-              <a href="${fileUrl}" target="_blank">${fileName}</a>
-              <span>${fileUrl}</span>
-              <button onclick="copyToClipboard('${fileUrl}')">Copy</button>
-            `;
-            fileList.appendChild(listItem);
-          }
+    const storageKey = 'fileListData';
+    
+    // Function to fetch files from GitHub API
+    function fetchFiles() {
+      return fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const fileList = data.filter(file => file.type === 'file'); // Filter only files
+          // Cache data in localStorage
+          localStorage.setItem(storageKey, JSON.stringify(fileList));
+          return fileList;
+        })
+        .catch(error => {
+          console.error('Error fetching files:', error);
+          return [];
         });
-      })
-      .catch(error => {
-        console.error('Error fetching files from GitHub API:', error);
-        const fileList = document.getElementById('file-list');
-        fileList.innerHTML = '<li>Failed to load files. Please try again later.</li>';
-      });
+    }
 
-    // Function to copy the URL to the clipboard
+    // Function to render the file list
+    function renderFileList(files) {
+      const fileList = document.getElementById('file-list');
+      const loadingText = document.getElementById('loading');
+
+      // Hide the loading text and display the file list
+      loadingText.style.display = 'none';
+      fileList.style.display = 'block';
+
+      // Clear the list before adding new items
+      fileList.innerHTML = '';
+
+      // Generate list items dynamically
+      files.forEach(file => {
+        const fileUrl = `https://tempestaethel.github.io/Short/C/${file.name}`;
+        const listItem = document.createElement('li');
+        listItem.innerHTML = `
+          <a href="${fileUrl}" target="_blank">${file.name}</a>
+          <span>${fileUrl}</span>
+          <button onclick="copyToClipboard('${fileUrl}')">Copy</button>
+        `;
+        fileList.appendChild(listItem);
+      });
+    }
+
+    // Function to copy URL to clipboard
     function copyToClipboard(url) {
       const textarea = document.createElement('textarea');
       textarea.value = url;
@@ -131,6 +149,23 @@
       document.body.removeChild(textarea);
       alert('Link copied to clipboard!');
     }
+
+    // Check localStorage for cached data or fetch from API
+    function loadFiles() {
+      const cachedData = localStorage.getItem(storageKey);
+
+      if (cachedData) {
+        // If cached data exists, use it
+        const files = JSON.parse(cachedData);
+        renderFileList(files);
+      } else {
+        // Otherwise, fetch the data from the API
+        fetchFiles().then(files => renderFileList(files));
+      }
+    }
+
+    // Load files when the page is ready
+    loadFiles();
   </script>
 </body>
 </html>
