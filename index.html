@@ -28,28 +28,56 @@
       list-style-type: none;
       padding: 0;
       margin: 0;
+      width: 80%;
+      max-width: 600px;
     }
 
     li {
       font-size: 1.2em;
       margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #1e1e1e;
+      padding: 10px;
+      border-radius: 5px;
+      transition: transform 0.3s ease;
+    }
+
+    li:hover {
+      transform: scale(1.05);
     }
 
     a {
       color: #00bcd4;
       text-decoration: none;
       font-weight: bold;
-      transition: color 0.3s ease;
+      margin-right: 10px;
+      flex: 1;
     }
 
     a:hover {
       color: #4caf50; /* Green on hover */
     }
 
+    button {
+      background-color: #00bcd4;
+      border: none;
+      color: white;
+      padding: 10px;
+      font-size: 1em;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #4caf50; /* Green on hover */
+    }
+
     /* Optional: Add some smooth transition effects */
     li:hover {
-      transform: scale(1.05);
-      transition: transform 0.3s ease;
+      background-color: #333333;
     }
   </style>
 </head>
@@ -69,16 +97,20 @@
       .then(data => {
         const fileList = document.getElementById('file-list');
 
-        // Loop through the response data and create a list of links
+        // Loop through the response data and create a list of files with links
         data.forEach(file => {
           // Only include files (ignore directories)
           if (file.type === 'file') {
             const listItem = document.createElement('li');
             const fileName = file.name;
             const fileUrl = `https://tempestaethel.github.io/Short/C/${fileName}`;
-            
+
             // Create the link for each file
-            listItem.innerHTML = `<a href="${fileUrl}" target="_blank">${fileName}</a>`;
+            listItem.innerHTML = `
+              <a href="${fileUrl}" target="_blank">${fileName}</a>
+              <span>${fileUrl}</span>
+              <button onclick="copyToClipboard('${fileUrl}')">Copy</button>
+            `;
             fileList.appendChild(listItem);
           }
         });
@@ -88,6 +120,17 @@
         const fileList = document.getElementById('file-list');
         fileList.innerHTML = '<li>Failed to load files. Please try again later.</li>';
       });
+
+    // Function to copy the URL to the clipboard
+    function copyToClipboard(url) {
+      const textarea = document.createElement('textarea');
+      textarea.value = url;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      alert('Link copied to clipboard!');
+    }
   </script>
 </body>
 </html>
