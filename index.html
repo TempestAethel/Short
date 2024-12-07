@@ -188,6 +188,11 @@
         `;
         fileList.appendChild(listItem);
       });
+
+      // Automatically refresh the file list after 3 seconds
+      setTimeout(() => {
+        forceRefresh();
+      }, 3000); // 3 seconds auto-refresh after loading files
     }
 
     // Function to copy URL to clipboard and show toast
@@ -200,12 +205,13 @@
       document.body.removeChild(textarea);
 
       // Show the toast notification
-      showToast();
+      showToast('Link copied to clipboard!');
     }
 
-    // Function to show the toast message
-    function showToast() {
+    // Function to show the toast message with animation
+    function showToast(message) {
       const toast = document.getElementById('toast');
+      toast.textContent = message;
       toast.classList.add('show');
       setTimeout(() => {
         toast.classList.remove('show');
@@ -238,6 +244,7 @@
       localStorage.removeItem(storageKey);
       localStorage.removeItem(storageTimestampKey);
       fetchFiles().then(files => renderFileList(files));
+      showToast('Files refreshed!');
     }
 
     // Load files when the page is ready
