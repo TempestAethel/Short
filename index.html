@@ -3,44 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My URL Shortener</title>
+  <title>Files in Folder C</title>
+  <style>
+    body {
+      background-color: #121212; /* Dark background */
+      color: #00bcd4; /* Cyan text color */
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+
+    a {
+      color: #00bcd4;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+
+    a:hover {
+      color: #4caf50; /* Green on hover */
+    }
+
+    /* Optional: Add some smooth transition effects */
+    li:hover {
+      transform: scale(1.05);
+      transition: transform 0.3s ease;
+    }
+  </style>
 </head>
 <body>
-  <h1>Welcome to My URL Shortener</h1>
-  <p>Use a short URL after this page URL to be redirected to a target page. Below are the available short URLs:</p>
-
-  <ul id="redirect-list">
-    <!-- The list of available redirects will be populated here -->
+  <h1>Files in Folder C</h1>
+  <ul id="file-list">
+    <!-- The file list will be populated here -->
   </ul>
 
   <script>
-    // Define a mapping of shortened URLs to real URLs
-    const redirects = {
-      "short1": "https://github.com/TempestAethel/File-Reserve/tree/main/Academic/College%20Mini%20Project/Final",
-      "short2": "https://another-example.com",
-      "short3": "https://yetanother-example.com"
-    };
+    // GitHub API URL for listing files in the 'C' folder of the repository
+    const apiUrl = 'https://api.github.com/repos/TempestAethel/Short/contents/C';
 
-    // Base URL for the short URLs
-    const baseUrl = "https://tempestaethel.github.io/Short/";
+    // Fetch the list of files from the GitHub repository using the GitHub API
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+        const fileList = document.getElementById('file-list');
 
-    // Display all redirects on the page with clickable short URLs
-    const redirectList = document.getElementById('redirect-list');
-    for (let shortUrl in redirects) {
-      let listItem = document.createElement('li');
-      // Display short URL and corresponding full URL
-      listItem.innerHTML = `<a href="${baseUrl + shortUrl}">${baseUrl + shortUrl}</a> → <a href="${redirects[shortUrl]}" target="_blank">${redirects[shortUrl]}</a>`;
-      redirectList.appendChild(listItem);
-    }
-
-    // Get the current path after the base URL
-    const path = window.location.pathname.slice(1);
-
-    // Check if the path matches a short URL and redirect
-    if (redirects[path]) {
-      // Redirect to the mapped URL
-      window.location.href = redirects[path];
-    }
+        // Loop through the response data and create a list of links
+        data.forEach(file => {
+          // Only include files (ignore directories)
+          if (file.type === 'file') {
+            const listItem = document.createElement('li');
+            const fileName = file.name;
+            const fileUrl = `https://tempestaethel.github.io/Short/C/${fileName}`;
+            
+            // Create the link for each file
+            listItem.innerHTML = `<a href="${fileUrl}" target="_blank">${fileName}</a>`;
+            fileList.appendChild(listItem);
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching files from GitHub API:', error);
+        const fileList = document.getElementById('file-list');
+        fileList.innerHTML = '<li>Failed to load files. Please try again later.</li>';
+      });
   </script>
 </body>
 </html>
