@@ -106,6 +106,28 @@
     #refresh-btn:hover {
       background-color: #e53935;
     }
+
+    /* Toast Styles */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #4caf50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 1em;
+      display: none; /* Hidden by default */
+      opacity: 0;
+      transition: opacity 0.5s ease, bottom 0.5s ease;
+    }
+
+    .toast.show {
+      display: block;
+      opacity: 1;
+      bottom: 30px; /* Moves up when shown */
+    }
   </style>
 </head>
 <body>
@@ -116,6 +138,9 @@
   </ul>
 
   <button id="refresh-btn" onclick="forceRefresh()">Refresh Files</button>
+
+  <!-- Toast Message -->
+  <div id="toast" class="toast">Link copied to clipboard!</div>
 
   <script>
     const apiUrl = 'https://api.github.com/repos/TempestAethel/Short/contents/C';
@@ -165,7 +190,7 @@
       });
     }
 
-    // Function to copy URL to clipboard
+    // Function to copy URL to clipboard and show toast
     function copyToClipboard(url) {
       const textarea = document.createElement('textarea');
       textarea.value = url;
@@ -173,7 +198,18 @@
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      alert('Link copied to clipboard!');
+
+      // Show the toast notification
+      showToast();
+    }
+
+    // Function to show the toast message
+    function showToast() {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000); // Toast stays for 2 seconds
     }
 
     // Function to load files with cache duration check
