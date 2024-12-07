@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My URL Shortener</title>
+</head>
+<body>
+  <h1>Welcome to My URL Shortener</h1>
+  <p>Use a short URL after this page URL to be redirected to a target page.</p>
+
+  <script>
+    // Define a mapping of shortened URLs to real URLs
+    const redirects = {
+      "short1": "https://github.com/TempestAethel/File-Reserve/tree/main/Academic/College%20Mini%20Project/Final",
+      "short2": "https://another-example.com",
+      "short3": "https://yetanother-example.com"
+    };
+
+    // Get the current path after the base URL
+    const path = window.location.pathname.slice(1);
+
+    // Check if the path matches a short URL and redirect
+    if (redirects[path]) {
+      // Redirect to the mapped URL
+      window.location.href = redirects[path];
+    } else {
+      // Display a simple 404 message if the short URL is invalid
+      document.body.innerHTML = "<h1>404 - Not Found</h1><p>The link you entered is invalid or does not exist.</p>";
+    }
+  </script>
+</body>
+</html>
