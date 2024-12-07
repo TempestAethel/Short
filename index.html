@@ -7,7 +7,11 @@
 </head>
 <body>
   <h1>Welcome to My URL Shortener</h1>
-  <p>Use a short URL after this page URL to be redirected to a target page.</p>
+  <p>Use a short URL after this page URL to be redirected to a target page. Below are the available short URLs:</p>
+
+  <ul id="redirect-list">
+    <!-- The list of available redirects will be populated here -->
+  </ul>
 
   <script>
     // Define a mapping of shortened URLs to real URLs
@@ -17,6 +21,18 @@
       "short3": "https://yetanother-example.com"
     };
 
+    // Base URL for the short URLs
+    const baseUrl = "https://tempestaethel.github.io/Short/";
+
+    // Display all redirects on the page with clickable short URLs
+    const redirectList = document.getElementById('redirect-list');
+    for (let shortUrl in redirects) {
+      let listItem = document.createElement('li');
+      // Display short URL and corresponding full URL
+      listItem.innerHTML = `<a href="${baseUrl + shortUrl}">${baseUrl + shortUrl}</a> → <a href="${redirects[shortUrl]}" target="_blank">${redirects[shortUrl]}</a>`;
+      redirectList.appendChild(listItem);
+    }
+
     // Get the current path after the base URL
     const path = window.location.pathname.slice(1);
 
@@ -24,9 +40,6 @@
     if (redirects[path]) {
       // Redirect to the mapped URL
       window.location.href = redirects[path];
-    } else {
-      // Display a simple 404 message if the short URL is invalid
-      document.body.innerHTML = "<h1>404 - Not Found</h1><p>The link you entered is invalid or does not exist.</p>";
     }
   </script>
 </body>
