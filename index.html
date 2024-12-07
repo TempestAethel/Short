@@ -91,6 +91,21 @@
     #file-list {
       display: none;
     }
+
+    /* Refresh Button Styles */
+    #refresh-btn {
+      background-color: #f44336;
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+    }
+
+    #refresh-btn:hover {
+      background-color: #e53935;
+    }
   </style>
 </head>
 <body>
@@ -100,18 +115,23 @@
     <!-- The file list will be populated here -->
   </ul>
 
+  <button id="refresh-btn" onclick="forceRefresh()">Refresh Files</button>
+
   <script>
     const apiUrl = 'https://api.github.com/repos/TempestAethel/Short/contents/C';
     const storageKey = 'fileListData';
-    
+    const storageTimestampKey = 'fileListTimestamp';
+    const cacheDuration = 10 * 60 * 1000; // 10 minutes cache duration
+
     // Function to fetch files from GitHub API
     function fetchFiles() {
       return fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
           const fileList = data.filter(file => file.type === 'file'); // Filter only files
-          // Cache data in localStorage
+          // Cache data in localStorage with timestamp
           localStorage.setItem(storageKey, JSON.stringify(fileList));
+          localStorage.setItem(storageTimestampKey, Date.now());
           return fileList;
         })
         .catch(error => {
@@ -156,18 +176,32 @@
       alert('Link copied to clipboard!');
     }
 
-    // Check localStorage for cached data or fetch from API
+    // Function to load files with cache duration check
     function loadFiles() {
       const cachedData = localStorage.getItem(storageKey);
+      const cachedTimestamp = localStorage.getItem(storageTimestampKey);
 
-      if (cachedData) {
-        // If cached data exists, use it
-        const files = JSON.parse(cachedData);
-        renderFileList(files);
+      if (cachedData && cachedTimestamp) {
+        const timeElapsed = Date.now() - cachedTimestamp;
+        if (timeElapsed < cacheDuration) {
+          // If cached data is still valid, use it
+          const files = JSON.parse(cachedData);
+          renderFileList(files);
+        } else {
+          // If cache is expired, fetch new data
+          fetchFiles().then(files => renderFileList(files));
+        }
       } else {
-        // Otherwise, fetch the data from the API
+        // No cached data, fetch from API
         fetchFiles().then(files => renderFileList(files));
       }
+    }
+
+    // Function to force refresh and bypass cache
+    function forceRefresh() {
+      localStorage.removeItem(storageKey);
+      localStorage.removeItem(storageTimestampKey);
+      fetchFiles().then(files => renderFileList(files));
     }
 
     // Load files when the page is ready
